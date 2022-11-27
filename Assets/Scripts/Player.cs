@@ -1,3 +1,4 @@
+using PokemonUnity.Inventory;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -77,17 +78,15 @@ public class Player : Singleton<Player> {
 
     void Start()
     {
-        GameData.instance.AddPokemonToParty(PokemonEnum.Mew,35);
-        GameData.instance.party[0].SetMove(Moves.Cut,0);
-        GameData.instance.party[0].SetMove(Moves.Surf,1);
-        GameData.instance.party[0].SetMove(Moves.Softboiled,2);
+        GameData.instance.AddPokemonToParty(PokemonUnity.Pokemons.MEW,35);
+        GameData.instance.party[0].SetMove(PokemonUnity.Moves.CUT,0);
+        GameData.instance.party[0].SetMove(PokemonUnity.Moves.SURF,1);
+        GameData.instance.party[0].SetMove(PokemonUnity.Moves.SOFT_BOILED,2);
         GameData.instance.trainerID = Random.Range(0, 65536);
         direction = Direction.Down;
         targetPos = transform.position;
         CheckMapCollision();
     }
-
- 
 
     List<string> downLedgeSprites = new List<string>(new string[]{"Tileset_73","Tileset_74","Tileset_75","Tileset_76","Tileset_77","Tileset_78","Tileset_117","Tileset_120","Tileset_123"});
     List<string> leftLedgeSprites = new List<string>(new string[]{"Tileset_93","Tileset_96","Tileset_99"});
@@ -575,7 +574,7 @@ void UpdateMovement(){
     public BattleManager battleManager;
     public GameObject battlemenu;
 
-    public IEnumerator StartWildBattle(System.Tuple<PokemonEnum,int> pokemon)
+    public IEnumerator StartWildBattle(System.Tuple<PokemonUnity.Pokemons,int> pokemon)
     {
         inBattle = true;
         isDisabled = true;
@@ -629,15 +628,15 @@ void UpdateMovement(){
         MainMenu.instance.Close();      
 	}
 
-    public void UseItem(ItemsEnum whatItem)
+    public void UseItem(Items whatItem)
     {
         StartCoroutine(UseItemFunction(whatItem));
     }
     
-    public IEnumerator UseItemFunction(ItemsEnum whatItem){ //function called when using an item
+    public IEnumerator UseItemFunction(Items whatItem){ //function called when using an item
 
         switch(whatItem){ 
-            case ItemsEnum.Bicycle:
+            case Items.BICYCLE:
 		    	CloseMenus();
 
                 switch (walkSurfBikeState)

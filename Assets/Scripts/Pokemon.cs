@@ -1,7 +1,9 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
+// ToDo: Use PokemonUnity's Pokemon
 [System.Serializable]
 public class Pokemon
 {
@@ -22,19 +24,20 @@ public class Pokemon
     public int ownerID;
     public string owner;
     public int experience;
-    public Types[] types;
+    public PokemonUnity.Types[] types;
     public Move[] moves;
     public int numberOfMoves;
 
-    public Pokemon(PokemonEnum pokemonId, int level, bool isWildPokemon)
+    public Pokemon(PokemonUnity.Pokemons pokemonId, int level, bool isWildPokemon)
     {
-        PokemonDataEntry pokemonDataEntry = PokemonData.pokemonData[(int)pokemonId - 1];
-        this.id = pokemonDataEntry.id;
-        this.name = pokemonDataEntry.name;
+        var pokemonData = PokemonData.GetPokemonData(pokemonId);
+        // ToDo: Fix this
+        this.id = (int)pokemonData.ID - 1;
+        this.name = pokemonData.ID.ToString();
         this.level = level;
         this.isWildPokemon = isWildPokemon;
         this.nickname = this.name;
-        types = pokemonDataEntry.types;
+        types = pokemonData.Type;
         GenerateIvs();
         moves = new Move[4];
         for(int i = 0; i < 4; i++){
@@ -44,7 +47,7 @@ public class Pokemon
         SetExpToLevel();
         RecalculateStats();
         //If the Pokemon hasn't been registered as caught before, register it
-        if (!GameData.instance.pokedexlist[id - 1].caught)
+        if (!GameData.instance.pokedexlist[id].caught)
         {
             RegisterInDex();
         }
@@ -58,20 +61,18 @@ public class Pokemon
 
     public void RegisterInDex()
     {
-
-        GameData.instance.pokedexlist[id - 1].seen = true;
-        if(!isWildPokemon) GameData.instance.pokedexlist[id - 1].caught = true;
-
+        GameData.instance.pokedexlist[id].seen = true;
+        if(!isWildPokemon) GameData.instance.pokedexlist[id].caught = true;
     }
     public void RecalculateStats()
     {
-        PokemonDataEntry pokemonDataEntry = PokemonData.pokemonData[id - 1];
-
-        maxHP = Mathf.FloorToInt(((pokemonDataEntry.baseStats[0] + ivs[0]) * 2 + Mathf.Sqrt(evs[0]) / 4) * level / 100) + level + 10;
-        attack = Mathf.FloorToInt(((pokemonDataEntry.baseStats[1] + ivs[1]) * 2 + Mathf.Sqrt(evs[1]) / 4) * level / 100) + 5;
-        defense = Mathf.FloorToInt(((pokemonDataEntry.baseStats[2] + ivs[2]) * 2 + Mathf.Sqrt(evs[2]) / 4) * level / 100) + 5;
-        speed = Mathf.FloorToInt(((pokemonDataEntry.baseStats[3] + ivs[3]) * 2 + Mathf.Sqrt(evs[3]) / 4) * level / 100) + 5;
-        special = Mathf.FloorToInt(((pokemonDataEntry.baseStats[4] + ivs[4]) * 2 + Mathf.Sqrt(evs[4]) / 4) * level / 100) + 5;
+        var pokemonDataEntry = PokemonData.GetPokemonData((PokemonUnity.Pokemons)id);
+        // ToDo: Check this again
+        maxHP = Mathf.FloorToInt(((pokemonDataEntry.BaseStatsHP + ivs[0]) * 2 + Mathf.Sqrt(evs[0]) / 4) * level / 100) + level + 10;
+        attack = Mathf.FloorToInt(((pokemonDataEntry.BaseStatsATK + ivs[1]) * 2 + Mathf.Sqrt(evs[1]) / 4) * level / 100) + 5;
+        defense = Mathf.FloorToInt(((pokemonDataEntry.BaseStatsDEF + ivs[2]) * 2 + Mathf.Sqrt(evs[2]) / 4) * level / 100) + 5;
+        speed = Mathf.FloorToInt(((pokemonDataEntry.BaseStatsSPE + ivs[3]) * 2 + Mathf.Sqrt(evs[3]) / 4) * level / 100) + 5;
+        special = Mathf.FloorToInt(((pokemonDataEntry.BaseStatsSPA + ivs[4]) * 2 + Mathf.Sqrt(evs[4]) / 4) * level / 100) + 5;
         currentHP = maxHP;
     }
     public void GenerateIvs()
@@ -93,16 +94,17 @@ public class Pokemon
          return (result - experience).UnderflowUInt24();
         
     }
+    
     public int CalculateExp(int level){
-        switch (PokemonData.pokemonData[id - 1].expGroup)
+        switch (PokemonData.GetPokemonData((PokemonUnity.Pokemons)id).GrowthRate)
         {
-            case 0: //Slow
+            case PokemonUnity.Monster.LevelingRate.SLOW: //Slow
                 return Mathf.FloorToInt(5 * Mathf.Pow(level, 3) / 4f);
-            case 1: //Medium Slow
+            case PokemonUnity.Monster.LevelingRate.MEDIUMSLOW: //Medium Slow
                 return Mathf.FloorToInt((6f / 5f) * Mathf.Pow(level, 3) - 15 * Mathf.Pow(level, 2) + 100 * level - 140);
-            case 2: //Medium Fast
+            case PokemonUnity.Monster.LevelingRate.MEDIUMFAST: //Medium Fast
                 return Mathf.FloorToInt(Mathf.Pow(level, 3));
-            case 3: //Fast
+            case PokemonUnity.Monster.LevelingRate.FAST: //Fast
                 return Mathf.FloorToInt(4 * Mathf.Pow(level, 3) / 5f);
             default:
                 throw new UnityException("Invalid experience index was given.");
@@ -118,15 +120,9 @@ public class Pokemon
         return 100; //if the current experience is higher than the level 100 experience, return 100
     }
 
-    bool AlreadyHasMove(Moves moveIndex)
+    bool AlreadyHasMove(PokemonUnity.Moves moveIndex)
     {
-        foreach (Move move in moves)
-        {
-            if (move.moveIndex == (int)moveIndex)
-                return true;
-
-        }
-        return false;
+        return moves.Any(move => move.moveIndex == (int)moveIndex);
     }
 
     Move MoveAtCurrentLevel(){
@@ -160,7 +156,7 @@ public class Pokemon
         */
         //iterate through all moves learned by level, and adjust the move pool accordingly
     }
-    public void AddMove(int moveIndex){
+    public void AddMove(PokemonUnity.Moves moveIndex){
         if(numberOfMoves == 4){
              Debug.Log("Cannot add a new move, there are already 4 moves");
         }
@@ -173,14 +169,14 @@ public class Pokemon
         }
         return;
     }
-    public void SetMove(Moves move,int moveIndex){
+    public void SetMove(PokemonUnity.Moves move,int moveIndex){
         if(moveIndex > 3 || moveIndex < 0) throw new UnityException("Invalid move index");
-            moves[moveIndex] = (new Move((int)move));
+            moves[moveIndex] = new Move(move);
 
     }
 
     public bool SlotHasMove(int index){
-        return moves[index].moveIndex != (int)Moves.None;
+        return moves[index].moveIndex != (int)PokemonUnity.Moves.NONE;
     }
 }
 

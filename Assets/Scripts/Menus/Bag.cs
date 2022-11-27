@@ -238,11 +238,11 @@ public class Bag : MonoBehaviour
                 {
                     if (!Inventory.instance.items[currentBagPosition].isKeyItem)
                     {
-                        yield return Dialogue.instance.text("Is it OK to toss&l" + PokemonData.GetItemName(Inventory.instance.items[currentBagPosition].item) + "?");
+                        yield return Dialogue.instance.text("Is it OK to toss&l" + Inventory.instance.items[currentBagPosition].item.ToString() + "?");
                         yield return StartCoroutine(Dialogue.instance.prompt());
                         if (Dialogue.instance.selectedOption == 0)
                         {
-                            yield return Dialogue.instance.text("Threw away&l" + PokemonData.GetItemName(Inventory.instance.items[currentBagPosition].item) + ".");
+                            yield return Dialogue.instance.text("Threw away&l" + Inventory.instance.items[currentBagPosition].item.ToString() + ".");
                             StartCoroutine(TossItem());
                         }
                         else

@@ -3,33 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-
-[System.Serializable]
-public class MoveData{
-    public MoveData(string name, int power, Types type, int accuracy, int maxpp, MoveEffect effect){
-        this.name = name;
-        this.power = power;
-        this.type = type;
-        this.accuracy = accuracy;
-        this.maxpp = maxpp;
-        this.effect = effect;
-    }
-    
-    public string name;
-    public int power;
-    public Types type;
-    public int accuracy;
-    public int maxpp;
-    public MoveEffect effect;
-
-}
-
 [System.Serializable]
 public class LevelUpMove{
-    public Moves move;
+    public PokemonUnity.Moves move;
     public int level;
 
-    public LevelUpMove(Moves move, int level){
+    public LevelUpMove(PokemonUnity.Moves move, int level){
         this.move = move;
         this.level = level;
     }
@@ -44,7 +23,7 @@ public enum EvolutionMethod {
 
 [System.Serializable]
 public class PokemonEvolution{
-    public PokemonEnum pokemon;
+    public PokemonUnity.Pokemons pokemon;
     public EvolutionMethod method;
 	/*
 	Contains different values depending on the evolution method
@@ -66,7 +45,7 @@ public class PokemonEvolution{
 [System.Serializable]
 public class EncounterData{
     public int encounterChance;
-    public Tuple<PokemonEnum,int>[] slots;
+    public Tuple<PokemonUnity.Pokemons,int>[] slots;
 }
 
 public class FishingGroup{
@@ -76,86 +55,28 @@ public class FishingGroup{
     } 
 }
 
-
-[System.Serializable]
-public class PokemonDataEntry {
-    public string name;
-    public int id;
-	public string category;
-    public int heightFeet, heightInches;
-    //weight in pounds
-    public float weight;
-    public string[] descriptionText;
-    /*
-    Sprite for party menu
-
-    Sprite types:
-    0:Generic Sprite
-    1:Bird Sprite
-    2:Water Sprite
-    3:Clefairy Sprite
-    4:Grass Sprite
-    5:Bug Sprite
-    6:Dragon Sprite
-    7:Dog Sprite
-    8:Pokeball Sprite
-    9:Fossil Sprite
-    10:Missingno Sprite
-    */
-    public int partySprite;
-    public int[] baseStats = new int[5];
-    public int catchRate;
-    public int baseExp;
-    public int expGroup;
-    public List<PokemonEvolution> evolutions;
-    public Types[] types = new Types[2];
-    public int[] tmhmLearnset;
-    public LevelUpMove[] levelupLearnset;
-}
-
-[System.Serializable]
-public class ItemDataEntry {
-	public string name;
-	public int price; //item's buy price (the sell price is just half the buy price)
-}
-
-
 public class PokemonData
 {
-    public static MoveData GetMove(int moveToGet){
-        //Debug.Log("Requesting move " + "\"" + moveToGet + "\"");
-        if(moveToGet < moves.Count && moveToGet != (int)Moves.None) return moves[moveToGet - 1];
-        //If the index is out of range, throw an exception.
-        throw new IndexOutOfRangeException("The move index is out of range.");
+    public static string GetTypeName(PokemonUnity.Types type){
+        if (type == PokemonUnity.Types.NONE) return "";
+        else return type.ToString();
     }
 
-    public static string GetTypeName(Types type){
-        if(type == Types.None) return "";
-        else return typeNames[(int)type - 1];
+    public static int GetItemPrice(PokemonUnity.Inventory.Items item){
+        return GetItemData(item).Price;
     }
 
-    public static string GetItemName(ItemsEnum item){
-        return itemData[(int)item].name;
-    }
-
-    public static int GetItemPrice(ItemsEnum item){
-        return itemData[(int)item].price;
-    }
-
-    public static Moves TMHMToMove(int tmhmIndex){
+    public static PokemonUnity.Moves TMHMToMove(int tmhmIndex){
         return TMHMMoves[tmhmIndex];
     }
 
-    //Format: name, power, type, accuracy, max pp, effect
-    public static List<MoveData> moves = new List<MoveData>();
+    public static PokemonUnity.Attack.Data.MoveData GetMoveData(PokemonUnity.Moves moveToGet) => PokemonUnity.Kernal.MoveData[moveToGet];
+    public static PokemonUnity.Monster.Data.PokemonData GetPokemonData(PokemonUnity.Pokemons pokemon) => PokemonUnity.Kernal.PokemonData[pokemon];
+    public static PokemonUnity.Inventory.ItemData GetItemData(PokemonUnity.Inventory.Items item) => PokemonUnity.Kernal.ItemData[item];
 
+    // ToDo: Fix this
+    public static int GetPartySprite(PokemonUnity.Pokemons pokemon) => 0;
 
-    public static string IndexToMon(int index){
-        return pokemonData[index - 1].name;
-    }
-
-    public static List<PokemonDataEntry> pokemonData = new List<PokemonDataEntry>();
-    
     public static List<EncounterData> encounters = new List<EncounterData>();
     /* Encounter Table Indices:
     0:Diglett Cave
@@ -235,87 +156,64 @@ public class PokemonData
         new FishingGroup(new Tuple<string,int>[]{new Tuple<string,int>("Seaking",23), new Tuple<string,int>("Krabby",15), new Tuple<string,int>("Goldeen",15), new Tuple<string,int>("Magikarp",15)}),
     });
 
+    public static Dictionary<string,string[]> shopItemsLists = new Dictionary<string, string[]>();
 
-
-    public static List<ItemDataEntry> itemData = new List<ItemDataEntry>();
-public static Dictionary<Types,Dictionary<Types,float>> TypeEffectiveness = new Dictionary<Types, Dictionary<Types, float>>();
-public static Dictionary<string,string[]> shopItemsLists = new Dictionary<string, string[]>();
-
-public static string[] typeNames = {
-    "NORMAL",
-    "FIGHTING",
-    "FLYING",
-    "POISON",
-    "FIRE",
-    "WATER",
-    "GRASS",
-    "ELECTRIC",
-    "PSYCHIC",
-    "ICE",
-    "GROUND",
-    "ROCK",
-    "BIRD",
-    "BUG",
-    "GHOST",
-    "DRAGON"
-};
-
-public static Moves[] TMHMMoves = {
-    Moves.MegaPunch,
-    Moves.RazorWind,
-    Moves.SwordsDance,
-    Moves.Whirlwind,
-    Moves.MegaKick,
-    Moves.Toxic,
-    Moves.HornDrill,
-    Moves.BodySlam,
-    Moves.TakeDown,
-    Moves.DoubleEdge,
-    Moves.Bubblebeam,
-    Moves.WaterGun,
-    Moves.IceBeam,
-    Moves.Blizzard,
-    Moves.HyperBeam,
-    Moves.PayDay,
-    Moves.Submission,
-    Moves.Counter,
-    Moves.SeismicToss,
-    Moves.Rage,
-    Moves.MegaDrain,
-    Moves.Solarbeam,
-    Moves.DragonRage,
-    Moves.Thunderbolt,
-    Moves.Thunder,
-    Moves.Earthquake,
-    Moves.Fissure,
-    Moves.Dig,
-    Moves.Psychic,
-    Moves.Teleport,
-    Moves.Mimic,
-    Moves.DoubleTeam,
-    Moves.Reflect,
-    Moves.Bide,
-    Moves.Metronome,
-    Moves.Selfdestruct,
-    Moves.EggBomb,
-    Moves.FireBlast,
-    Moves.Swift,
-    Moves.SkullBash,
-    Moves.Softboiled,
-    Moves.DreamEater,
-    Moves.SkyAttack,
-    Moves.Rest,
-    Moves.ThunderWave,
-    Moves.Psywave,
-    Moves.Explosion,
-    Moves.RockSlide,
-    Moves.TriAttack,
-    Moves.Substitute,
-    Moves.Cut,
-    Moves.Fly,
-    Moves.Surf,
-    Moves.Strength,
-    Moves.Flash
+    public static PokemonUnity.Moves[] TMHMMoves = {
+    PokemonUnity.Moves.MEGA_PUNCH,
+    PokemonUnity.Moves.RAZOR_WIND,
+    PokemonUnity.Moves.SWORDS_DANCE,
+    PokemonUnity.Moves.WHIRLWIND,
+    PokemonUnity.Moves.MEGA_KICK,
+    PokemonUnity.Moves.TOXIC,
+    PokemonUnity.Moves.HORN_DRILL,
+    PokemonUnity.Moves.BODY_SLAM,
+    PokemonUnity.Moves.TAKE_DOWN,
+    PokemonUnity.Moves.DOUBLE_EDGE,
+    PokemonUnity.Moves.BUBBLE_BEAM,
+    PokemonUnity.Moves.WATER_GUN,
+    PokemonUnity.Moves.ICE_BEAM,
+    PokemonUnity.Moves.BLIZZARD,
+    PokemonUnity.Moves.HYPER_BEAM,
+    PokemonUnity.Moves.PAY_DAY,
+    PokemonUnity.Moves.SUBMISSION,
+    PokemonUnity.Moves.COUNTER,
+    PokemonUnity.Moves.SEISMIC_TOSS,
+    PokemonUnity.Moves.RAGE,
+    PokemonUnity.Moves.MEGA_DRAIN,
+    PokemonUnity.Moves.SOLAR_BEAM,
+    PokemonUnity.Moves.DRAGON_RAGE,
+    PokemonUnity.Moves.THUNDERBOLT,
+    PokemonUnity.Moves.THUNDER,
+    PokemonUnity.Moves.EARTHQUAKE,
+    PokemonUnity.Moves.FISSURE,
+    PokemonUnity.Moves.DIG,
+    PokemonUnity.Moves.PSYCHIC,
+    PokemonUnity.Moves.TELEPORT,
+    PokemonUnity.Moves.MIMIC,
+    PokemonUnity.Moves.DOUBLE_TEAM,
+    PokemonUnity.Moves.REFLECT,
+    PokemonUnity.Moves.BIDE,
+    PokemonUnity.Moves.METRONOME,
+    PokemonUnity.Moves.SELF_DESTRUCT,
+    PokemonUnity.Moves.EGG_BOMB,
+    PokemonUnity.Moves.FIRE_BLAST,
+    PokemonUnity.Moves.SWIFT,
+    PokemonUnity.Moves.SKULL_BASH,
+    PokemonUnity.Moves.SOFT_BOILED,
+    PokemonUnity.Moves.DREAM_EATER,
+    PokemonUnity.Moves.SKY_ATTACK,
+    PokemonUnity.Moves.REST,
+    PokemonUnity.Moves.THUNDER_WAVE,
+    PokemonUnity.Moves.PSYWAVE,
+    PokemonUnity.Moves.EXPLOSION,
+    PokemonUnity.Moves.ROCK_SLIDE,
+    PokemonUnity.Moves.TRI_ATTACK,
+    PokemonUnity.Moves.SUBSTITUTE,
+    PokemonUnity.Moves.CUT,
+    PokemonUnity.Moves.FLY,
+    PokemonUnity.Moves.SURF,
+    PokemonUnity.Moves.STRENGTH,
+    PokemonUnity.Moves.FLASH
 };
 
 }

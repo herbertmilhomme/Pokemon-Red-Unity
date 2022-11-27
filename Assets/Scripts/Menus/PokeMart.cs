@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using PokemonUnity.Inventory;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -28,7 +29,7 @@ public class PokeMart : MonoBehaviour
     public List<ItemSlot> itemSlots = new List<ItemSlot>(4);
     public int currentBagPosition;
     public int menuId;
-    public List<ItemsEnum> martItemsList;
+    public List<Items> martItemsList;
     public int selectBag;
     public int amountToTask;
     public int maximumItem;
@@ -140,7 +141,7 @@ public class PokeMart : MonoBehaviour
                 }
                 if (itemMode == Mode.Sell){
                     //Set the selling price of the selected item.
-                    itemPrice = PokemonData.itemData[(int)Inventory.instance.items[currentBagPosition].item].price / 2;
+                    itemPrice = PokemonData.GetItemData(Inventory.instance.items[currentBagPosition].item).Price / 2;
                     maximumItem = Inventory.instance.items[currentBagPosition].quantity;
                 }
 
@@ -287,7 +288,7 @@ public class PokeMart : MonoBehaviour
                             cursor.SetActive(false);
                             currentMenu = Menu.QuantityMenu;
                         }else{
-                            if (!Inventory.instance.items[currentBagPosition].isKeyItem && PokemonData.itemData[(int)Inventory.instance.items[currentBagPosition].item].price > 0){
+                            if (!Inventory.instance.items[currentBagPosition].isKeyItem && PokemonData.GetItemData(Inventory.instance.items[currentBagPosition].item).Price > 0){
                                 amountToTask = 1;
                                 //UpdateQuantityScreen();
                                 amountText.text = amountToTask.ToString();

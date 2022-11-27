@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using PokemonUnity.Inventory;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,7 +14,7 @@ public enum SlotMode{
 public class ItemSlot : MonoBehaviour {
 	public bool isKeyItem;
 	public CustomText slotNameText, slotQuantityText;
-	public ItemsEnum item;
+	public Items item;
     //public ItemDataEntry itemData;
 	public int quantity;
     public int price;
@@ -29,7 +30,7 @@ public class ItemSlot : MonoBehaviour {
 	void Update () {
         switch(mode){
             case SlotMode.Item:
-                slotNameText.text = PokemonData.GetItemName(item);
+                slotNameText.text = item.ToString();
                 break;
             case SlotMode.Empty:
                 slotNameText.text = "";
@@ -53,11 +54,11 @@ public class ItemSlot : MonoBehaviour {
 
     public void UpdatePrice()
     {
-        ItemDataEntry itemDataEntry = PokemonData.itemData[(int)item];
+        var itemDataEntry = PokemonData.GetItemData(item);
 
-        if (itemDataEntry.price != 0)
+        if (itemDataEntry.Price != 0)
         {
-            price = itemDataEntry.price;
+            price = itemDataEntry.Price;
         }
         else throw new UnityException("A price entry doesn't exist for " + "\"" + name + "\"");
     }

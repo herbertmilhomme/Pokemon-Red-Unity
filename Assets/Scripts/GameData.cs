@@ -87,7 +87,10 @@ public class SaveData
 
 //Class containing all the core data of the game.
 public class GameData : Singleton<GameData> {
-    public List<string> fieldMoves = new List<string>(new string[] {"Teleport", "Fly", "Cut", "Surf", "Dig", "Strength", "Flash", "Softboiled"});
+    // ToDo: Fix this
+    public List<PokemonUnity.Moves> fieldMoves = new List<PokemonUnity.Moves>(new PokemonUnity.Moves[] 
+    {PokemonUnity.Moves.TELEPORT, PokemonUnity.Moves.FLY, PokemonUnity.Moves.CUT, PokemonUnity.Moves.SURF, PokemonUnity.Moves.DIG, PokemonUnity.Moves.STRENGTH,
+        PokemonUnity.Moves.FLASH, PokemonUnity.Moves.SOFT_BOILED});
     public List<Pokemon> party = new List<Pokemon>();
     [HideInInspector]
     public Sprite[] frontMonSprites, backMonSprites;
@@ -109,7 +112,7 @@ public class GameData : Singleton<GameData> {
     public bool[] eventsArray;
 
 
-    public void AddPokemonToParty(PokemonEnum pokemon, int level){
+    public void AddPokemonToParty(PokemonUnity.Pokemons pokemon, int level){
         party.Add(new Pokemon(pokemon, level, false));
     }
 

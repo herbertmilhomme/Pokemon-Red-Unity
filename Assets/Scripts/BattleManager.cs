@@ -287,7 +287,7 @@ public class BattleManager : MonoBehaviour
     {
         playerMonObject.SetActive(true);
         playerstats.SetActive(true);
-        SoundManager.instance.PlayCry(playermon.id - 1);
+        SoundManager.instance.PlayCry(playermon.id);
         battleoverlay.sprite = battleOverlaySprites[2];
     }
     void UpdateMenus()
@@ -400,13 +400,13 @@ public class BattleManager : MonoBehaviour
 
     public void DetermineFrontSprite()
     {
-        frontportrait.overrideSprite = GameData.instance.frontMonSprites[enemymon.id - 1];
+        frontportrait.overrideSprite = GameData.instance.frontMonSprites[enemymon.id];
 
     }
 
     public void DetermineBackSprite()
     {
-        backportrait.overrideSprite = GameData.instance.backMonSprites[playermon.id - 1];
+        backportrait.overrideSprite = GameData.instance.backMonSprites[playermon.id];
 
     }
 
@@ -465,11 +465,11 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    void UseMove(Moves move)
+    void UseMove(PokemonUnity.Moves move)
     {
-        MoveData moveData = PokemonData.GetMove((int)move);
+        var moveData = PokemonData.GetMoveData(move);
 
-        switch (moveData.effect)
+        /*switch (moveData.effect)
         {
             case MoveEffect.NoEffect: break;
             case MoveEffect.TwoFiveEffect: break;
@@ -539,14 +539,16 @@ public class BattleManager : MonoBehaviour
             case MoveEffect.ConversionEffect: break;
             case MoveEffect.SuperFangEffect: break;
             case MoveEffect.SubstituteEffect: break;
-        }
+        }*/
     }
 
 
     float moveEffectiveness(Move move, Pokemon target)
     {
-        float result = PokemonData.TypeEffectiveness[move.type][target.types[0]];
-        if (target.types[1] != Types.None) result *= PokemonData.TypeEffectiveness[move.type][target.types[1]];
+        float result = PokemonUnity.Kernal.TypeData[move.type][target.types[0]];
+        //float result = PokemonData.TypeEffectiveness[move.type][target.types[0]];
+        //if (target.types[1] != PokemonUnity.Types.NONE) result *= PokemonData.TypeEffectiveness[move.type][target.types[1]];
+        if (target.types[1] != PokemonUnity.Types.NONE) result *= PokemonUnity.Kernal.TypeData[move.type][target.types[1]];
         return result;
     }
 

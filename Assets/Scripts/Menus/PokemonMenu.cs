@@ -119,14 +119,14 @@ public class PokemonMenu : MonoBehaviour
 
     public void UpdateStats1(){
         cursor.SetActive(false);
-        stats1portrait.sprite = GameData.instance.frontMonSprites[GameData.instance.party[selectedMon].id - 1];
-        int id = GameData.instance.party[selectedMon].id;
+        stats1portrait.sprite = GameData.instance.frontMonSprites[GameData.instance.party[selectedMon].id];
+        int id = GameData.instance.party[selectedMon].id + 1;
         pokedexNO.text = (id > 99 ? "" : id > 9 ? "0" : "00") + id.ToString();
         attacktext.text = GameData.instance.party[selectedMon].attack.ToString();
         speedtext.text = GameData.instance.party[selectedMon].speed.ToString();
         specialtext.text = GameData.instance.party[selectedMon].special.ToString();
         defensetext.text = GameData.instance.party[selectedMon].defense.ToString();
-        Types type1 = GameData.instance.party[selectedMon].types[0], type2 = GameData.instance.party[selectedMon].types[1];
+        PokemonUnity.Types type1 = GameData.instance.party[selectedMon].types[0], type2 = GameData.instance.party[selectedMon].types[1];
         montype1.text = PokemonData.GetTypeName(type1);
         string type2String = PokemonData.GetTypeName(type2);
         montype2.text = type2String != "" ? ("TYPE2/" + "\n " + type2String) : "";
@@ -181,13 +181,13 @@ public class PokemonMenu : MonoBehaviour
                 movestr += (i > 0 ? "\n" : "") + "-" + "\n" + "         " + "--";
         }
         movetext.text = movestr;
-        stats2portrait.sprite = GameData.instance.frontMonSprites[GameData.instance.party[selectedMon].id - 1];
+        stats2portrait.sprite = GameData.instance.frontMonSprites[GameData.instance.party[selectedMon].id];
         monname2text.text = GameData.instance.party[selectedMon].nickname;
         
         exptext.text = TruncateExpNumber(GameData.instance.party[selectedMon].experience.ToString());
         explefttoleveltext.text =  TruncateExpNumber((GameData.instance.party[selectedMon].ExpToNextLevel().ToString()));
         nextleveltext.text = (GameData.instance.party[selectedMon].level < 99 ? "<LEVEL>" + (GameData.instance.party[selectedMon].level + 1).ToString() : 100.ToString());
-        int id = GameData.instance.party[selectedMon].id;
+        int id = GameData.instance.party[selectedMon].id + 1;
         pokedexno2.text = (id > 99 ? "" : id > 9 ? "0" : "00") + id.ToString();
         UpdateMenus();
     }
@@ -254,9 +254,9 @@ public class PokemonMenu : MonoBehaviour
             {
                 Transform slottransform = partyslots[GameData.instance.party.IndexOf(pokemon)].transform;
                 if (GameData.instance.party.IndexOf(pokemon) != selectedOption){
-                    slottransform.GetChild(0).GetComponent<Image>().sprite = partyanims[PokemonData.pokemonData[pokemon.id - 1].partySprite].anim[0];
+                    slottransform.GetChild(0).GetComponent<Image>().sprite = partyanims[PokemonData.GetPartySprite((PokemonUnity.Pokemons)pokemon.id)].anim[0];
                 }else{
-                    slottransform.GetChild(0).GetComponent<Image>().sprite = partyanims[PokemonData.pokemonData[pokemon.id - 1].partySprite].anim[Mathf.FloorToInt(2f*partyAnimTimer / animLoopTime)];
+                    slottransform.GetChild(0).GetComponent<Image>().sprite = partyanims[PokemonData.GetPartySprite((PokemonUnity.Pokemons)pokemon.id)].anim[Mathf.FloorToInt(2f*partyAnimTimer / animLoopTime)];
                 }
             }
 
@@ -319,10 +319,8 @@ public class PokemonMenu : MonoBehaviour
                     for(int i = 0; i < 4; i++){
                         if(selectedPokemon.SlotHasMove(i)){
                             Move move = selectedPokemon.moves[i];
-
                             if(isFieldMove(move)){
                                 numberOfFieldMoves++;
-
                                 if(move.name.Length > 6 && selectedMenu != 8){
                                     selectedMenu = 4;
                                     textOffsetLength = 2;
@@ -371,7 +369,7 @@ public class PokemonMenu : MonoBehaviour
                 
                 if (selectedOption == switchMenuOffset){
                     SoundManager.instance.SetMusicLow();
-                    SoundManager.instance.PlayCry(GameData.instance.party[selectedMon].id - 1);
+                    SoundManager.instance.PlayCry(GameData.instance.party[selectedMon].id);
                     Dialogue.instance.Deactivate();
                     currentMenu = stats1;
                     UpdateStats1();
@@ -408,7 +406,7 @@ public class PokemonMenu : MonoBehaviour
     IEnumerator UseFieldMove(string whatFieldMove){
         string monName = GameData.instance.party[selectedMon].nickname;
         
-        if(whatFieldMove == "Cut"){
+        if(whatFieldMove == "CUT"){
             if(Player.instance.facingTree){
                 currentMenu = mainwindow;
                 UpdateMenus();
@@ -423,7 +421,7 @@ public class PokemonMenu : MonoBehaviour
                 //TODO: implement cutting grass
             }
         }
-        if(whatFieldMove == "Surf"){
+        if(whatFieldMove == "SURF"){
             Player.instance.UpdateFacedTile();
             if(Player.instance.facedTile.hasTile && Player.instance.facedTile.isWater){
                 SoundManager.instance.PlaySong(Music.Ocean);
@@ -440,7 +438,7 @@ public class PokemonMenu : MonoBehaviour
                 yield return Dialogue.instance.text("No SURFing on&l" + monName + " here!");
             }
         }
-        if(whatFieldMove == "Softboiled"){
+        if(whatFieldMove == "SOFT_BOILED"){
             while(selectedOption == selectedMon){
                 selectingPokemon = true;
                 currentMenu = mainwindow;
@@ -511,14 +509,13 @@ public class PokemonMenu : MonoBehaviour
 
     public bool hasFieldMove(Pokemon pokemon){
         foreach(Move move in pokemon.moves){
-            if(GameData.instance.fieldMoves.Contains(move.name)) return true;
+            if(GameData.instance.fieldMoves.Contains(move.ID)) return true;
         }
         return false;
     }
 
     public bool isFieldMove(Move move){
-        if(GameData.instance.fieldMoves.Contains(move.name)) return true;
-        else return false;
+        return GameData.instance.fieldMoves.Contains(move.ID);
     }
 
     public void CloseMenu(){
