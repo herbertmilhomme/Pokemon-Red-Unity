@@ -1,29 +1,32 @@
 [System.Serializable]
 public class Move {
+    public PokemonUnity.Moves ID;
     public int moveIndex;
     public string name;
     public int pp;
     public int maxpp;
-    public Types type;
+    public PokemonUnity.Types type;
 
 
-    public Move(int index)
+    public Move(PokemonUnity.Moves index)
     {
-        this.moveIndex = index;
+        ID = index;
+        this.moveIndex = (int)index;
 
-        MoveData moveData = PokemonData.GetMove(index);
-        name = moveData.name;
-        maxpp = moveData.maxpp;
+        var moveData = PokemonData.GetMoveData(index);
+        name = moveData.ID.ToString();
+        maxpp = moveData.PP;
         pp = maxpp;
-        type = moveData.type;
+        type = moveData.Type;
     }
     public Move()
     {
-        this.moveIndex = (int)Moves.None;
+        ID = PokemonUnity.Moves.NONE;
+        this.moveIndex = 0;
 
         maxpp = 0;
         pp = 0;
-        type = Types.None; //Look at ths later
+        type = PokemonUnity.Types.NONE; //Look at ths later
     }
 }
 

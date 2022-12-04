@@ -57,7 +57,7 @@ public class Dialogue : Singleton<Dialogue> {
 
 
 	IEnumerator AnimateText(string strComplete){
-        Inputs.dialogueCheck = true;
+        InputManager.dialogueCheck = true;
 		box.enabled = true;
 		dialoguetext.enabled = true;
         dialoguetext.text = "";
@@ -121,14 +121,14 @@ public class Dialogue : Singleton<Dialogue> {
 		buycoinstext [1].text = GameData.instance.coins.ToString ();
 		if (!finishedThePrompt) {
 
-                if (Inputs.pressed("a")) {
+                if (InputManager.Pressed(Button.A)) {
 					finishedThePrompt = true;
 					StopAllCoroutines ();
-                    Inputs.dialogueCheck = false;
+                    InputManager.dialogueCheck = false;
 					dialoguetext.text = "";
                     cursor.SetActive(false);
 				}
-                if (Inputs.pressed("b")) {
+                if (InputManager.Pressed(Button.B)) {
                 switch (taskType)
                 {
                     case 0:
@@ -139,7 +139,7 @@ public class Dialogue : Singleton<Dialogue> {
                         break;
                 }
 					StopAllCoroutines ();
-                    Inputs.dialogueCheck = false;
+                    InputManager.dialogueCheck = false;
 					dialoguetext.text = "";
                     cursor.SetActive(false);
 					finishedThePrompt = true;
@@ -148,7 +148,7 @@ public class Dialogue : Singleton<Dialogue> {
 				
 
 
-                if (Inputs.pressed("down")) {
+                if (InputManager.Pressed(Button.Down)) {
 					selectedOption++;
                 switch (taskType)
                 {
@@ -163,7 +163,7 @@ public class Dialogue : Singleton<Dialogue> {
                 }
                     
                 }
-                if (Inputs.pressed("up")) {
+                if (InputManager.Pressed(Button.Up)) {
 					selectedOption--;
                 switch (taskType)
                 {
@@ -217,9 +217,9 @@ public IEnumerator text(string text){
 			}
 
         	if(needButtonPress){
-        		while(!Inputs.pressed("a")){
+        		while(!InputManager.Pressed(Button.A)){
 					yield return new WaitForSeconds(0.001f);
-        		    if(Inputs.pressed("a")){
+        		    if(InputManager.Pressed(Button.A)){
         		        SoundManager.instance.PlayABSound();
 						break;
 					}
@@ -234,16 +234,16 @@ public IEnumerator text(string text){
             indicator.SetActive(true);
 
             if(waitForButtonPress){
-            	while (!Inputs.pressed("a")) {
+            	while (!InputManager.Pressed(Button.A)) {
 					yield return new WaitForSeconds (0.001f);
-            	    if (Inputs.pressed("a")) {
+            	    if (InputManager.Pressed(Button.A)) {
             	        SoundManager.instance.PlayABSound();
 						break;
 					}
 				}
             }
 
-            Inputs.dialogueCheck = false;
+            InputManager.dialogueCheck = false;
 			
             if (!keepTextOnScreen){
                 box.enabled = false;
@@ -307,7 +307,7 @@ public IEnumerator text(string text){
 	public void Deactivate(){
 		StopAllCoroutines();
 		finishedText = true;
-        Inputs.dialogueCheck = false;
+        InputManager.dialogueCheck = false;
 		stringToReveal = "";
 		box.enabled = false;
 		dialoguetext.enabled = false;
