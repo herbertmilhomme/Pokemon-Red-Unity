@@ -205,8 +205,8 @@ public void PlayGoOutsideSound(){
     sfx.PlayOneShot(goOutsideSound);
 }
 
-public void PlayCry(int index){
-    StartCoroutine(PlayCryCoroutine(index));
+public void PlayCry(PokemonUnity.Pokemons pokemon){
+    StartCoroutine(PlayCryCoroutine((int)pokemon - 1));
 }
 
 public IEnumerator PlayItemGetSound(int index){

@@ -51,7 +51,7 @@ public class GameDataManager : Singleton<GameDataManager> {
         title.InitVersion();
         introHandler.InitVersion();
         oakIntroCutsceneHandler.InitVersion();
-        PokemonDataJSON.InitVersion();
+        DatabaseStartup.InitVersion();
         FontAtlasInit();
     }
 

@@ -5,18 +5,21 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Tilemaps;
 
+using PokemonUnity.Monster;
 
-public enum Direction{
-Up,
-Down,
-Left,
-Right,
-Null
+public enum Direction
+{
+    Up,
+    Down,
+    Left,
+    Right,
+    Null
 }
 
-public class Player : Singleton<Player> {
-
-    public enum MovementState{
+public class Player : Singleton<Player>
+{
+    public enum MovementState
+    {
         Walk,
         Bike,
         Surf
@@ -33,8 +36,8 @@ public class Player : Singleton<Player> {
     public ViewBio viewBio;
     //public TileBase facedtile;
     public int numberOfNoRandomBattleStepsLeft;
-	public AudioClip collisionClip, ledgeJumpClip, openStartMenuClip, cutClip;
-	public float collisionSoundTimer;
+    public AudioClip collisionClip, ledgeJumpClip, openStartMenuClip, cutClip;
+    public float collisionSoundTimer;
     public float speed = 0.0f;
     public Vector3 targetPos;
     public int holdFrames;
@@ -61,14 +64,13 @@ public class Player : Singleton<Player> {
     public bool cannotMoveLeft, cannotMoveRight, cannotMoveUp, cannotMoveDown;
     public bool canUseBike;
     public MapTile facedTile;
-    List<string> doorSprites = new List<string>(new string[]{ "tile137", "tile149", "tile249", "tile480", "tile760" });
+    List<string> doorSprites = new List<string>(new string[] { "tile137", "tile149", "tile249", "tile480", "tile760" });
     public bool forcePlayerBikeDownwards; //used when on Cycling Road
     public bool onWarpTile;
     public TileWarp currentWarpTile;
     public bool noCollision, disableEncounters;
     public GameCursor cursor;
     public Bag bag;
-
 
     void Awake()
     {
@@ -78,24 +80,30 @@ public class Player : Singleton<Player> {
 
     void Start()
     {
-        GameData.instance.AddPokemonToParty(PokemonUnity.Pokemons.MEW,35);
-        GameData.instance.party[0].SetMove(PokemonUnity.Moves.CUT,0);
-        GameData.instance.party[0].SetMove(PokemonUnity.Moves.SURF,1);
-        GameData.instance.party[0].SetMove(PokemonUnity.Moves.SOFT_BOILED,2);
+        GameData.instance.AddPokemonToParty(PokemonUnity.Pokemons.MEW, 35);
+        GameData.instance.party[0].pbLearnMove(PokemonUnity.Moves.CUT);
+        GameData.instance.party[0].pbLearnMove(PokemonUnity.Moves.SURF);
+        GameData.instance.party[0].pbLearnMove(PokemonUnity.Moves.SOFT_BOILED);
+        //GameData.instance.party[0].SetMove(PokemonUnity.Moves.CUT,0);
+        //GameData.instance.party[0].SetMove(PokemonUnity.Moves.SURF,1);
+        //GameData.instance.party[0].SetMove(PokemonUnity.Moves.SOFT_BOILED,2);
         GameData.instance.trainerID = Random.Range(0, 65536);
         direction = Direction.Down;
         targetPos = transform.position;
         CheckMapCollision();
     }
 
-    List<string> downLedgeSprites = new List<string>(new string[]{"Tileset_73","Tileset_74","Tileset_75","Tileset_76","Tileset_77","Tileset_78","Tileset_117","Tileset_120","Tileset_123"});
-    List<string> leftLedgeSprites = new List<string>(new string[]{"Tileset_93","Tileset_96","Tileset_99"});
-    List<string> rightLedgeSprites = new List<string>(new string[]{"Tileset_95","Tileset_98","Tileset_101"});
+    List<string> downLedgeSprites = new List<string>(new string[] { "Tileset_73", "Tileset_74", "Tileset_75", "Tileset_76", "Tileset_77", "Tileset_78", "Tileset_117", "Tileset_120", "Tileset_123" });
+    List<string> leftLedgeSprites = new List<string>(new string[] { "Tileset_93", "Tileset_96", "Tileset_99" });
+    List<string> rightLedgeSprites = new List<string>(new string[] { "Tileset_95", "Tileset_98", "Tileset_101" });
 
 
-    IEnumerator MovementUpdate(){
-        if(!ledgejumping){
-            switch (walkSurfBikeState){
+    IEnumerator MovementUpdate()
+    {
+        if (!ledgejumping)
+        {
+            switch (walkSurfBikeState)
+            {
                 case MovementState.Walk: //Walk
                     speed = baseMovementSpeed;
                     break;
@@ -105,15 +113,16 @@ public class Player : Singleton<Player> {
                 case MovementState.Surf: //Surf
                     speed = baseMovementSpeed;
                     break;
-                //if on cycling road, add extra speed boost
+                    //if on cycling road, add extra speed boost
             }
         }
-        
 
-        if (Dialogue.instance.finishedText && !isDisabled && !menuActive && !startMenuActive && !inBattle && !manuallyWalking && !GameData.instance.atTitleScreen){
-         
-            if(InputManager.Released(Button.Left) || InputManager.Released(Button.Right) || InputManager.Released(Button.Up) || InputManager.Released(Button.Down)){
-                if(holdFrames <= 2) holdFrames = 0;
+        if (Dialogue.instance.finishedText && !isDisabled && !menuActive && !startMenuActive && !inBattle && !manuallyWalking && !GameData.instance.atTitleScreen)
+        {
+            if (InputManager.Released(Button.Left) || InputManager.Released(Button.Right) || InputManager.Released(Button.Up) || InputManager.Released(Button.Down))
+            {
+                if (holdFrames <= 2)
+                    holdFrames = 0;
             }
 
             //If we're not ledge jumping already, the adjacent tile is a ledge, and we're exactly on a tile, ledge jump
@@ -143,26 +152,28 @@ public class Player : Singleton<Player> {
 
 
             }
-            if(holdingDirection && !isWarping && onWarpTile && currentWarpTile.warpType == WarpType.WallWarp && direction == currentWarpTile.wallDirection && transform.position == targetPos){
-                        SoundManager.instance.PlayGoOutsideSound();
-                        DoWarp(currentWarpTile);
+            if (holdingDirection && !isWarping && onWarpTile && currentWarpTile.warpType == WarpType.WallWarp && direction == currentWarpTile.wallDirection && transform.position == targetPos)
+            {
+                SoundManager.instance.PlayGoOutsideSound();
+                DoWarp(currentWarpTile);
 
             }
-          
+
             if (!ledgejumping)
-            {                
-                if (InputManager.Held(Button.Up)||InputManager.Held(Button.Down)||InputManager.Held(Button.Left)||InputManager.Held(Button.Right))
+            {
+                if (InputManager.Held(Button.Up) || InputManager.Held(Button.Down) || InputManager.Held(Button.Left) || InputManager.Held(Button.Right))
                 {
                     holdFrames++;
-                     if(!holdingDirection){
-                collisionSoundTimer += 0.3f;
-                }
+                    if (!holdingDirection)
+                    {
+                        collisionSoundTimer += 0.3f;
+                    }
                     if (isMoving && transform.position == targetPos)
                     {
                         walkedfromwarp = true;
                     }
-                    Direction inputDir = InputManager.Held(Button.Up) ? Direction.Up : InputManager.Held(Button.Down) ? Direction.Down : InputManager.Held(Button.Left) ? Direction.Left: InputManager.Held(Button.Right) ? Direction.Right : 0;
-                     if (transform.position == targetPos && direction != inputDir)
+                    Direction inputDir = InputManager.Held(Button.Up) ? Direction.Up : InputManager.Held(Button.Down) ? Direction.Down : InputManager.Held(Button.Left) ? Direction.Left : InputManager.Held(Button.Right) ? Direction.Right : 0;
+                    if (transform.position == targetPos && direction != inputDir)
                     {
                         direction = inputDir;
                         UpdateFacedTile();
@@ -173,15 +184,16 @@ public class Player : Singleton<Player> {
                     holdingDirection = true;
                     if (transform.position == targetPos && holdFrames > 2)
                     {
-                        
-                        if(InputManager.Held(Button.Up) ? !cannotMoveUp : InputManager.Held(Button.Down) ? !cannotMoveDown : InputManager.Held(Button.Left) ? !cannotMoveLeft: InputManager.Held(Button.Right) ? !cannotMoveRight : false){ 
-                         if(walkSurfBikeState == MovementState.Surf && facedTile.hasTile && !facedTile.isWater && !facedTile.isWall && !facedTile.isLedge) {
-                        walkSurfBikeState = MovementState.Walk;
-                        PlayCurrentAreaSong();
-                        
-                          }
-                        targetPos += InputManager.Held(Button.Up) ? Vector3.up : InputManager.Held(Button.Down) ? Vector3.down : InputManager.Held(Button.Left) ? Vector3.left: InputManager.Held(Button.Right) ? Vector3.right : Vector3.zero;
-                        isMoving = true;
+
+                        if (InputManager.Held(Button.Up) ? !cannotMoveUp : InputManager.Held(Button.Down) ? !cannotMoveDown : InputManager.Held(Button.Left) ? !cannotMoveLeft : InputManager.Held(Button.Right) ? !cannotMoveRight : false)
+                        {
+                            if (walkSurfBikeState == MovementState.Surf && facedTile.hasTile && !facedTile.isWater && !facedTile.isWall && !facedTile.isLedge)
+                            {
+                                walkSurfBikeState = MovementState.Walk;
+                                PlayCurrentAreaSong();
+                            }
+                            targetPos += InputManager.Held(Button.Up) ? Vector3.up : InputManager.Held(Button.Down) ? Vector3.down : InputManager.Held(Button.Left) ? Vector3.left : InputManager.Held(Button.Right) ? Vector3.right : Vector3.zero;
+                            isMoving = true;
                         }
                     }
 
@@ -192,10 +204,9 @@ public class Player : Singleton<Player> {
                 }
                 else holdFrames = 0;
                 UpdateMovement();
-                if(facingWall()) isMoving = false;
+                if (facingWall()) isMoving = false;
                 if (transform.position == targetPos)
                 {
-
                     if (isMoving) //did we move onto a new tile?
                     {
                         //The player moved onto a tile, run any checks needed;
@@ -204,7 +215,7 @@ public class Player : Singleton<Player> {
                         UpdateFacedTile();
                         if (!walkedfromwarp)
                             walkedfromwarp = true;
-                        MapTile currentTile = new MapTile(new Vector3Int((int)transform.position.x,(int)transform.position.y,0));
+                        MapTile currentTile = new MapTile(new Vector3Int((int)transform.position.x, (int)transform.position.y, 0));
                         if (currentTile.hasTile)
                         {
 
@@ -215,89 +226,94 @@ public class Player : Singleton<Player> {
                                 else SoundManager.instance.PlayGoOutsideSound();
                                 DoWarp(currentWarpTile);
                             }
-                            
-                            if(numberOfNoRandomBattleStepsLeft > 0) numberOfNoRandomBattleStepsLeft--;
-                            if (((currentTile.hasGrass && currentAreaTable != null) || (currentTile.isWater && areaHasWaterEncounters)) && !disableEncounters){ 
-                               
-                                if(numberOfNoRandomBattleStepsLeft == 0) {
-                                int rand = Random.Range(0,256);
-                                EncounterData table = (currentTile.hasGrass ? currentAreaTable : PokemonData.encounters[55]);
-                                if(rand < currentAreaTable.encounterChance){
-                                rand = Random.Range(0,256);
-                                Debug.Log("Wild encounter triggered. Choosing the encounter slot.");
-                                int chosenIndex = (
-                                rand <= 50 ? 0 : //51/256 = 19.9% chance of slot 0
-                                rand <= 101 ? 1 : //51/256 = 19.9% chance of slot 1
-                                rand <= 140 ? 2 : //39/256 = 15.2% chance of slot 2
-                                rand <= 165 ? 3 : //25/256 =  9.8% chance of slot 3
-                                rand <= 190 ? 4 : //25/256 =  9.8% chance of slot 4
-                                rand <= 215 ? 5 : //25/256 =  9.8% chance of slot 5
-                                rand <= 228 ? 6 : //13/256 =  5.1% chance of slot 6
-                                rand <= 241 ? 7 : //13/256 =  5.1% chance of slot 7
-                                rand <= 252 ? 8 : 9);//11/256 =  4.3% chance of slot 8
-                                                     //3/256 =  1.2% chance of slot 9
-                                Debug.Log("Chosen Pokemon: " + table.slots[chosenIndex].ToString());
+
+                            if (numberOfNoRandomBattleStepsLeft > 0) numberOfNoRandomBattleStepsLeft--;
+                            if (((currentTile.hasGrass && currentAreaTable != null) || (currentTile.isWater && areaHasWaterEncounters)) && !disableEncounters)
+                            {
+
+                                if (numberOfNoRandomBattleStepsLeft == 0)
+                                {
+                                    int rand = Random.Range(0, 256);
+                                    EncounterData table = (currentTile.hasGrass ? currentAreaTable : PokemonData.encounters[55]);
+                                    if (rand < currentAreaTable.encounterChance)
+                                    {
+                                        rand = Random.Range(0, 256);
+                                        Debug.Log("Wild encounter triggered. Choosing the encounter slot.");
+                                        int chosenIndex = (
+                                        rand <= 50 ? 0 : //51/256 = 19.9% chance of slot 0
+                                        rand <= 101 ? 1 : //51/256 = 19.9% chance of slot 1
+                                        rand <= 140 ? 2 : //39/256 = 15.2% chance of slot 2
+                                        rand <= 165 ? 3 : //25/256 =  9.8% chance of slot 3
+                                        rand <= 190 ? 4 : //25/256 =  9.8% chance of slot 4
+                                        rand <= 215 ? 5 : //25/256 =  9.8% chance of slot 5
+                                        rand <= 228 ? 6 : //13/256 =  5.1% chance of slot 6
+                                        rand <= 241 ? 7 : //13/256 =  5.1% chance of slot 7
+                                        rand <= 252 ? 8 : 9);//11/256 =  4.3% chance of slot 8
+                                                             //3/256 =  1.2% chance of slot 9
+                                        Debug.Log($"Chosen Pokemon: {table.slots[chosenIndex]}");
                                         //Debug.Log(table.slots[chosenIndex].Item1.Length);
-                                isMoving = false;
-                                holdingDirection = false;
-                                StartCoroutine(StartWildBattle(table.slots[chosenIndex]));
+                                        isMoving = false;
+                                        holdingDirection = false;
+                                        StartCoroutine(StartWildBattle(table.slots[chosenIndex]));
+                                    }
                                 }
-                                }                              
-                            }                          
-                        }                       
+                            }
+                        }
                     }
                 }
-                 playerAnim.SetFloat("movingfloat",holdingDirection||isMoving ? 1f : 0);
-                if (InputManager.Held(Button.Up) || InputManager.Held(Button.Left) ||InputManager.Held(Button.Right) || InputManager.Held(Button.Down)) holdingDirection = true;
+                playerAnim.SetFloat("movingfloat", holdingDirection || isMoving ? 1f : 0);
+                if (InputManager.Held(Button.Up) || InputManager.Held(Button.Left) || InputManager.Held(Button.Right) || InputManager.Held(Button.Down))
+                    holdingDirection = true;
 
-               
-                if (transform.position == targetPos) playerAnim.SetFloat("movedir", (int)direction + 1);
-                collisionSoundTimer += Time.deltaTime;                
-                if(collisionSoundTimer >= 0.3f && (holdingFacingDirection() && facingWall()) && !ledgejumping && holdFrames > 2){
+                if (transform.position == targetPos)
+                    playerAnim.SetFloat("movedir", (int)direction + 1);
+                collisionSoundTimer += Time.deltaTime;
+                if (collisionSoundTimer >= 0.3f && (holdingFacingDirection() && facingWall()) && !ledgejumping && holdFrames > 2)
+                {
                     SoundManager.instance.sfx.PlayOneShot(collisionClip);
                     collisionSoundTimer = 0;
-                }              
-                if(!holdingDirection) collisionSoundTimer = 0;
+                }
+                if (!holdingDirection)
+                    collisionSoundTimer = 0;
             }
         }
 
-        if(manuallyWalking){
+        if (manuallyWalking)
+        {
             UpdateMovement();
-            playerAnim.SetFloat("movingfloat", isMoving ? 1 : 0);                 
+            playerAnim.SetFloat("movingfloat", isMoving ? 1 : 0);
             if (transform.position == targetPos)
             {
                 isMoving = false;
                 holdingDirection = false;
                 manuallyWalking = false;
-                if(!walkedfromwarp) walkedfromwarp = true;
+                if (!walkedfromwarp)
+                    walkedfromwarp = true;
             }
         }
         yield return 0;
     }
-   
-
-public bool facingWall() {
-    return (direction == Direction.Up && cannotMoveUp) || (direction == Direction.Down && cannotMoveDown)  || (direction == Direction.Left && cannotMoveLeft) || (direction == Direction.Right && cannotMoveRight);
-}
 
 
+    public bool facingWall()
+    {
+        return (direction == Direction.Up && cannotMoveUp) || (direction == Direction.Down && cannotMoveDown) || (direction == Direction.Left && cannotMoveLeft) || (direction == Direction.Right && cannotMoveRight);
+    }
 
-public bool holdingFacingDirection() {
-    return  (direction == Direction.Up && InputManager.Held(Button.Up)) || (direction == Direction.Down && InputManager.Held(Button.Down)) || (direction == Direction.Left && InputManager.Held(Button.Left)) || (direction == Direction.Right && InputManager.Held(Button.Right));
-}
+    public bool holdingFacingDirection()
+    {
+        return (direction == Direction.Up && InputManager.Held(Button.Up)) || (direction == Direction.Down && InputManager.Held(Button.Down)) || (direction == Direction.Left && InputManager.Held(Button.Left)) || (direction == Direction.Right && InputManager.Held(Button.Right));
+    }
 
+    public Vector3 DirectionToVector(Direction dir)
+    {
+        return (dir == Direction.Up ? Vector3.up : dir == Direction.Down ? Vector3.down : dir == Direction.Left ? Vector3.left : dir == Direction.Right ? Vector3.right : Vector3.zero);
+    }
 
-
-
-public Vector3 DirectionToVector(Direction dir) {
-    return (dir == Direction.Up ? Vector3.up : dir == Direction.Down ? Vector3.down : dir == Direction.Left ? Vector3.left : dir == Direction.Right ? Vector3.right : Vector3.zero);
-}
-
-
-
-public IEnumerator MovePlayerOneTile(Direction dir)
-{
-        if(!manuallyWalking){
+    public IEnumerator MovePlayerOneTile(Direction dir)
+    {
+        if (!manuallyWalking)
+        {
             direction = dir;
             holdingDirection = true;
 
@@ -305,49 +321,50 @@ public IEnumerator MovePlayerOneTile(Direction dir)
             {
                 playerAnim.SetFloat("movedir", (int)direction + 1);
                 targetPos += DirectionToVector(dir);
-                 isMoving = true;
+                isMoving = true;
             }
-}
-    manuallyWalking = true;
-    while(manuallyWalking) yield return new WaitForEndOfFrame();
-    CheckCollision();
-    UpdateFacedTile();
-    CheckMapCollision();
-    yield return 0;
-}
-
-void UpdateMovement(){
-    moveFrame++;
-    //only update movement every 2 frames
-    if(moveFrame == 2){
-        transform.position = Vector3.MoveTowards(transform.position, targetPos, Time.deltaTime * speed);
-        moveFrame = 0;
+        }
+        manuallyWalking = true;
+        while (manuallyWalking) yield return new WaitForEndOfFrame();
+        CheckCollision();
+        UpdateFacedTile();
+        CheckMapCollision();
+        yield return 0;
     }
-}
-    
 
+    void UpdateMovement()
+    {
+        moveFrame++;
+        //only update movement every 2 frames
+        if (moveFrame == 2)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, targetPos, Time.deltaTime * speed);
+            moveFrame = 0;
+        }
+    }
 
     IEnumerator LedgeJump()
     {
         holdingDirection = false;
-        SoundManager.instance.sfx.PlayOneShot (ledgeJumpClip);
+        SoundManager.instance.sfx.PlayOneShot(ledgeJumpClip);
         playerAnim.SetBool("ledgejumping", ledgejumping);
         isDisabled = true;
         speed = baseMovementSpeed;
         ledgejumping = true;
         targetPos += 2 * DirectionToVector(direction);
 
-        while(targetPos != transform.position){
+        while (targetPos != transform.position)
+        {
             UpdateMovement();
             //yield return new WaitForEndOfFrame();
-            yield return new WaitForSeconds(1f/60f);
+            yield return new WaitForSeconds(1f / 60f);
         }
-        
+
         CheckCollision();
         UpdateFacedTile();
         CheckMapCollision();
-	    playerAnim.SetBool("ledgejumping", false);
-	    yield return new WaitForSeconds(0.1f);
+        playerAnim.SetBool("ledgejumping", false);
+        yield return new WaitForSeconds(0.1f);
         ledgejumping = false;
         isDisabled = false;
         //add the move up/down part of ledge jump animation later
@@ -359,182 +376,205 @@ void UpdateMovement(){
         InputManager.DisableDPad();
         isMoving = false;
         WaitForSeconds wait = new WaitForSeconds(0.1f);
-        for(int i = 0; i < 3; i++){
+        for (int i = 0; i < 3; i++)
+        {
             yield return wait;
             ScreenEffects.flashLevel--;
         }
         yield return new WaitForSeconds(0.25f);
         transform.position = position;
         targetPos = transform.position;
-        
+
         ScreenEffects.flashLevel = 3;
         yield return wait;
         ScreenEffects.flashLevel = 0;
-        
+
         InputManager.Enable(Button.Start);
         InputManager.EnableDPad();
         isWarping = false;
         CheckCollision();
-        
-        MapTile currentTile = new MapTile(new Vector3Int((int)transform.position.x,(int)transform.position.y,0));
-        if(currentTile.hasTile && onWarpTile && currentWarpTile.forceMove){
-        StartCoroutine(MovePlayerOneTile(direction));
+
+        MapTile currentTile = new MapTile(new Vector3Int((int)transform.position.x, (int)transform.position.y, 0));
+        if (currentTile.hasTile && onWarpTile && currentWarpTile.forceMove)
+        {
+            StartCoroutine(MovePlayerOneTile(direction));
         }
     }
 
-
-    void FixedUpdate(){
-        if (GameData.instance.atTitleScreen) return;
+    void FixedUpdate()
+    {
+        if (GameData.instance.atTitleScreen)
+            return;
         StartCoroutine(MovementUpdate());
         movingHitbox.transform.position = targetPos;
     }
 
-
     // Update is called once per frame
     void Update()
     {
-        if (GameData.instance.atTitleScreen) return;
+        if (GameData.instance.atTitleScreen)
+            return;
         //StartCoroutine(MovementUpdate());
         //movingHitbox.transform.position = targetPos;
-        
-		playerAnim.SetFloat("walkbikesurfstate", (int)walkSurfBikeState);
-       
-		if (!isDisabled && !menuActive && !startMenuActive) {
-            if (InputManager.Pressed(Button.Start) && !isMoving) {
+
+        playerAnim.SetFloat("walkbikesurfstate", (int)walkSurfBikeState);
+
+        if (!isDisabled && !menuActive && !startMenuActive)
+        {
+            if (InputManager.Pressed(Button.Start) && !isMoving)
+            {
                 SoundManager.instance.sfx.PlayOneShot(openStartMenuClip);
-				startMenuActive = true;
+                startMenuActive = true;
                 MainMenu.instance.enabled = true;
-				MainMenu.instance.Initialize();
-			}
-			top.SetActive (!isDisabled);
-			bottom.SetActive (!isDisabled);
+                MainMenu.instance.Initialize();
+            }
+            top.SetActive(!isDisabled);
+            bottom.SetActive(!isDisabled);
 
-			playerAnim.SetInteger ("movedirection", (int)direction + 1);
+            playerAnim.SetInteger("movedirection", (int)direction + 1);
 
-            if (InputManager.Released(Button.Down) || InputManager.Released(Button.Right) || InputManager.Released(Button.Left) || InputManager.Released(Button.Up)) {
-				if (!manuallyWalking) holdingDirection = false;
+            if (InputManager.Released(Button.Down) || InputManager.Released(Button.Right) || InputManager.Released(Button.Left) || InputManager.Released(Button.Up))
+            {
+                if (!manuallyWalking) holdingDirection = false;
             }
         }
-            
 
-		if (facedObject != null) {
+
+        if (facedObject != null)
+        {
             NPC npc = facedObject.GetComponent<NPC>();
 
-			if (!holdingDirection && transform.position == targetPos) {
-                if (!holdingDirection && !isMoving && !isDisabled && Dialogue.instance.finishedText && !startMenuActive && !menuActive && !inBattle && !ledgejumping) {
-                    if (InputManager.Pressed(Button.A)){
-
-                        if (npc != null && !npc.isMoving){
+            if (!holdingDirection && transform.position == targetPos)
+            {
+                if (!holdingDirection && !isMoving && !isDisabled && Dialogue.instance.finishedText && !startMenuActive && !menuActive && !inBattle && !ledgejumping)
+                {
+                    if (InputManager.Pressed(Button.A))
+                    {
+                        if (npc != null && !npc.isMoving)
+                        {
                             npc.FacePlayer();
                             if (npc.isTrainer) npc.StartEncounter();
                             else StartCoroutine(npc.NPCText());
                             return;
                         }
 
-                        if(facedObject.tag == "Interactable"){
+                        if (facedObject.tag == "Interactable")
+                        {
                             InteractableObject obj = facedObject.GetComponent<InteractableObject>();
                             StartCoroutine(obj.Interact());
                             return;
                         }
 
                     }
-				}
-			}
-		}
+                }
+            }
+        }
 
-        CheckObjectCollision();      
-	}
+        CheckObjectCollision();
+    }
 
-	
-	public IEnumerator DisplayEmotiveBubble(int type){
-		isDisabled = true;
-		displayingEmotion = true;
-		emotionbubble.enabled = true;
-		emotionbubble.sprite = bubbles[type];
-		yield return new WaitForSeconds(1);
-		emotionbubble.enabled = false;
-		displayingEmotion = false;
+
+    public IEnumerator DisplayEmotiveBubble(int type)
+    {
+        isDisabled = true;
+        displayingEmotion = true;
+        emotionbubble.enabled = true;
+        emotionbubble.sprite = bubbles[type];
+        yield return new WaitForSeconds(1);
+        emotionbubble.enabled = false;
+        displayingEmotion = false;
         isDisabled = false;
-	}
+    }
 
 
-    public void UpdateFacedTile(){
+    public void UpdateFacedTile()
+    {
         MapTile tileToCheck = null;
         Vector3 offset = DirectionToVector(direction);
-        tileToCheck =  new MapTile(new Vector3Int((int)transform.position.x + (int)offset.x,(int)transform.position.y+(int)offset.y,0));
+        tileToCheck = new MapTile(new Vector3Int((int)transform.position.x + (int)offset.x, (int)transform.position.y + (int)offset.y, 0));
 
-           
-            if (tileToCheck.hasTile)
-            {
-                facedTile = tileToCheck;
-            }
-            else facedTile.hasTile = false;       
+        if (tileToCheck.hasTile)
+        {
+            facedTile = tileToCheck;
+        }
+        else facedTile.hasTile = false;
     }
 
     public LayerMask mapMask;
 
     void CheckCollision()
-    {    
-         CheckObjectCollision(); 
+    {
+        CheckObjectCollision();
 
-            MapTile tileToCheck = null;
-            tileToCheck = new MapTile(new Vector3Int((int)transform.position.x-1,(int)transform.position.y,0));
-            cannotMoveLeft = tileToCheck.isWall || tileToCheck.isLedge || (tileToCheck.isWater && walkSurfBikeState != MovementState.Surf) || objectExists[2] || !tileToCheck.hasTile;
-            tileToCheck = new MapTile(new Vector3Int((int)transform.position.x+1,(int)transform.position.y,0));
-            cannotMoveRight = tileToCheck.isWall || tileToCheck.isLedge || (tileToCheck.isWater && walkSurfBikeState != MovementState.Surf) || objectExists[3] || !tileToCheck.hasTile;
-            tileToCheck = new MapTile(new Vector3Int((int)transform.position.x,(int)transform.position.y+1,0));
-            cannotMoveUp = tileToCheck.isWall || tileToCheck.isLedge || (tileToCheck.isWater && walkSurfBikeState != MovementState.Surf) || objectExists[0] || !tileToCheck.hasTile;
-            tileToCheck = new MapTile(new Vector3Int((int)transform.position.x,(int)transform.position.y-1,0));
-            cannotMoveDown = tileToCheck.isWall || tileToCheck.isLedge || (tileToCheck.isWater && walkSurfBikeState != MovementState.Surf) || objectExists[1] || !tileToCheck.hasTile;
-        
-        if(noCollision){
+        MapTile tileToCheck = null;
+        tileToCheck = new MapTile(new Vector3Int((int)transform.position.x - 1, (int)transform.position.y, 0));
+        cannotMoveLeft = tileToCheck.isWall || tileToCheck.isLedge || (tileToCheck.isWater && walkSurfBikeState != MovementState.Surf) || objectExists[2] || !tileToCheck.hasTile;
+        tileToCheck = new MapTile(new Vector3Int((int)transform.position.x + 1, (int)transform.position.y, 0));
+        cannotMoveRight = tileToCheck.isWall || tileToCheck.isLedge || (tileToCheck.isWater && walkSurfBikeState != MovementState.Surf) || objectExists[3] || !tileToCheck.hasTile;
+        tileToCheck = new MapTile(new Vector3Int((int)transform.position.x, (int)transform.position.y + 1, 0));
+        cannotMoveUp = tileToCheck.isWall || tileToCheck.isLedge || (tileToCheck.isWater && walkSurfBikeState != MovementState.Surf) || objectExists[0] || !tileToCheck.hasTile;
+        tileToCheck = new MapTile(new Vector3Int((int)transform.position.x, (int)transform.position.y - 1, 0));
+        cannotMoveDown = tileToCheck.isWall || tileToCheck.isLedge || (tileToCheck.isWater && walkSurfBikeState != MovementState.Surf) || objectExists[1] || !tileToCheck.hasTile;
+
+        if (noCollision)
+        {
             cannotMoveDown = cannotMoveLeft = cannotMoveRight = cannotMoveUp = false;
         }
     }
     public LayerMask layerMask, collisionMask;
-    public void CheckObjectCollision(){
+    public void CheckObjectCollision()
+    {
         //Use a raycast to check for objects such as trees, etc...
-        RaycastHit2D ray =  Physics2D.Raycast(transform.position,(direction == Direction.Up ? Vector2.up : direction == Direction.Down ? Vector2.down : direction == Direction.Left ? Vector2.left : Vector2.right),1,layerMask); 
-        if(ray.collider != null){
-            if(ray.collider.tag == "Tree"){
+        RaycastHit2D ray = Physics2D.Raycast(transform.position, (direction == Direction.Up ? Vector2.up : direction == Direction.Down ? Vector2.down : direction == Direction.Left ? Vector2.left : Vector2.right), 1, layerMask);
+        if (ray.collider != null)
+        {
+            if (ray.collider.tag == "Tree")
+            {
                 facingTree = true;
             }
             else facingTree = false;
-        }else facingTree = false;
+        }
+        else facingTree = false;
 
-         ray =  Physics2D.Raycast(transform.position,(direction == Direction.Up ? Vector2.up : direction == Direction.Down ? Vector2.down : direction == Direction.Left ? Vector2.left : Vector2.right),1,collisionMask);
-        if(ray.collider != null) facedObject = ray.collider.gameObject;
+        ray = Physics2D.Raycast(transform.position, (direction == Direction.Up ? Vector2.up : direction == Direction.Down ? Vector2.down : direction == Direction.Left ? Vector2.left : Vector2.right), 1, collisionMask);
+        if (ray.collider != null) facedObject = ray.collider.gameObject;
         else facedObject = null;
-         ray =  Physics2D.Raycast(transform.position,Vector2.up,1,layerMask);
-         if(ray.collider != null) objectExists[0] = true;
-         else objectExists[0] = false;
-         ray =  Physics2D.Raycast(transform.position,Vector2.down,1,layerMask);
-         if(ray.collider != null) objectExists[1] = true;
-         else objectExists[1] = false;
-         ray =  Physics2D.Raycast(transform.position,Vector2.left,1,layerMask);
-         if(ray.collider != null) objectExists[2] = true;
-         else objectExists[2] = false;
-         ray =  Physics2D.Raycast(transform.position,Vector2.right,1,layerMask);
-         if(ray.collider != null) objectExists[3] = true;
-         else objectExists[3] = false;
+        ray = Physics2D.Raycast(transform.position, Vector2.up, 1, layerMask);
+        if (ray.collider != null) objectExists[0] = true;
+        else objectExists[0] = false;
+        ray = Physics2D.Raycast(transform.position, Vector2.down, 1, layerMask);
+        if (ray.collider != null) objectExists[1] = true;
+        else objectExists[1] = false;
+        ray = Physics2D.Raycast(transform.position, Vector2.left, 1, layerMask);
+        if (ray.collider != null) objectExists[2] = true;
+        else objectExists[2] = false;
+        ray = Physics2D.Raycast(transform.position, Vector2.right, 1, layerMask);
+        if (ray.collider != null) objectExists[3] = true;
+        else objectExists[3] = false;
     }
 
-    public void CheckMapCollision(){
-        foreach(MapCollider mapCol in MapManager.instance.mapColliders){
+    public void CheckMapCollision()
+    {
+        foreach (MapCollider mapCol in MapManager.instance.mapColliders)
+        {
             mapCol.tilemapObject.SetActive(false);
         }
         MapManager.instance.mapColliders.Clear();
         RaycastHit2D[] hitColliders;
-        for(int i= 0; i < 5; i++){
+        for (int i = 0; i < 5; i++)
+        {
             Vector2 dir = i == 0 ? Vector2.up : i == 1 ? Vector2.down : i == 2 ? Vector2.left : i == 3 ? Vector2.right : Vector2.zero;
             float rayDist = dir.y != 0 ? 5 : 6;
-            
-           // Debug.DrawLine(transform.position, transform.position + (Vector3)(dir * rayDist),Color.red,6f);
-            hitColliders =  Physics2D.BoxCastAll((Vector2)transform.position + new Vector2(0.5f,0),new Vector2(11,9),0,Vector2.zero);
-            foreach(RaycastHit2D ray in hitColliders){
-                if(ray.collider.tag == "MapCollider"){
+
+            // Debug.DrawLine(transform.position, transform.position + (Vector3)(dir * rayDist),Color.red,6f);
+            hitColliders = Physics2D.BoxCastAll((Vector2)transform.position + new Vector2(0.5f, 0), new Vector2(11, 9), 0, Vector2.zero);
+            foreach (RaycastHit2D ray in hitColliders)
+            {
+                if (ray.collider.tag == "MapCollider")
+                {
                     MapCollider mapCollider = ray.collider.GetComponent<MapCollider>();
-                    if(!MapManager.instance.mapColliders.Contains(mapCollider)){
+                    if (!MapManager.instance.mapColliders.Contains(mapCollider))
+                    {
                         MapManager.instance.mapColliders.Add(mapCollider);
                         mapCollider.tilemapObject.SetActive(true);
                     }
@@ -543,13 +583,14 @@ void UpdateMovement(){
         }
     }
 
-
-    public void Cut(string MonName){
+    public void Cut(string MonName)
+    {
         CloseMenus();
         StartCoroutine(CutFunction(MonName));
     }
 
-    public IEnumerator CutFunction(string MonName){
+    public IEnumerator CutFunction(string MonName)
+    {
         yield return Dialogue.instance.text(MonName + " hacked&laway with CUT!");
         SoundManager.instance.sfx.PlayOneShot(cutClip);
         facedObject.GetComponent<PokemonTree>().Cut();
@@ -559,12 +600,14 @@ void UpdateMovement(){
         isDisabled = false;
     }
 
-    public void Surf(){
+    public void Surf()
+    {
         CloseMenus();
         StartCoroutine(SurfFunction());
     }
 
-    public IEnumerator SurfFunction(){
+    public IEnumerator SurfFunction()
+    {
         isDisabled = true;
         walkSurfBikeState = MovementState.Surf;
         yield return MovePlayerOneTile(direction);
@@ -574,32 +617,36 @@ void UpdateMovement(){
     public BattleManager battleManager;
     public GameObject battlemenu;
 
-    public IEnumerator StartWildBattle(System.Tuple<PokemonUnity.Pokemons,int> pokemon)
+    public IEnumerator StartWildBattle(System.Tuple<PokemonUnity.Pokemons, int> pokemon)
     {
         inBattle = true;
         isDisabled = true;
         SoundManager.instance.PlaySong(Music.WildPokemonBattle);
 
-        WaitForSeconds wait = new WaitForSeconds(1.8f/60f);
+        WaitForSeconds wait = new WaitForSeconds(1.8f / 60f);
 
-        for(int i = 0; i < 3; i++){
+        for (int i = 0; i < 3; i++)
+        {
             ScreenEffects.flashLevel = 0;
-            for(int j = 0; j < 3; j++){
+            for (int j = 0; j < 3; j++)
+            {
                 ScreenEffects.flashLevel--;
                 yield return wait;
             }
-            for(int j = 0; j < 6; j++){
+            for (int j = 0; j < 6; j++)
+            {
                 ScreenEffects.flashLevel++;
                 yield return wait;
             }
-            for(int j = 0; j < 3; j++){
+            for (int j = 0; j < 3; j++)
+            {
                 ScreenEffects.flashLevel--;
                 yield return wait;
             }
         }
 
         battleManager.battleType = BattleType.Wild;
-        battleManager.enemyMons = new List<Pokemon>(new Pokemon[]{new Pokemon(pokemon.Item1,pokemon.Item2,true)});
+        battleManager.enemyMons = new List<Pokemon>(new Pokemon[] { new Pokemon(pokemon.Item1, (byte)pokemon.Item2, false) });
         battlemenu.SetActive(true);
         battleManager.battleoverlay.sprite = battleManager.blank;
         battleManager.Initialize();
@@ -614,37 +661,39 @@ void UpdateMovement(){
         battleManager.battleoverlay.sprite = battleManager.blank;
         battleManager.battleID = battleID;
         battleManager.Initialize();
-         yield return 0;
+        yield return 0;
     }
 
-
-	public void CloseMenus(){
+    public void CloseMenus()
+    {
         InputManager.Enable(Button.Start);
         //Bag.instance.Close();
         bag.Close();
         cursor.SetActive(false);
         startMenuActive = false;
         MainMenu.instance.selectedOption = 0;
-        MainMenu.instance.Close();      
-	}
+        MainMenu.instance.Close();
+    }
 
     public void UseItem(Items whatItem)
     {
         StartCoroutine(UseItemFunction(whatItem));
     }
-    
-    public IEnumerator UseItemFunction(Items whatItem){ //function called when using an item
 
-        switch(whatItem){ 
+    public IEnumerator UseItemFunction(Items whatItem)
+    { //function called when using an item
+
+        switch (whatItem)
+        {
             case Items.BICYCLE:
-		    	CloseMenus();
+                CloseMenus();
 
                 switch (walkSurfBikeState)
                 {
                     case MovementState.Walk:
-                    SoundManager.instance.PlaySong(Music.Cycling); //play the biking music
+                        SoundManager.instance.PlaySong(Music.Cycling); //play the biking music
                         yield return Dialogue.instance.text(GameData.instance.playerName + " got on the&lBICYCLE!");
-                        walkSurfBikeState =  MovementState.Bike;
+                        walkSurfBikeState = MovementState.Bike;
                         break;
                     case MovementState.Bike:
                         PlayCurrentAreaSong();
@@ -658,57 +707,66 @@ void UpdateMovement(){
                 MainMenu.instance.Close();
                 break;
         }
-	}
+    }
 
-    public void RunFromBattle(){
+    public void RunFromBattle()
+    {
         StartCoroutine(Run());
     }
 
-    public IEnumerator Run(){
-	    if(battleManager.battleType == BattleType.Wild){
-		    yield return Dialogue.instance.text("Ran away&lsafely!");
+    public IEnumerator Run()
+    {
+        if (battleManager.battleType == BattleType.Wild)
+        {
+            yield return Dialogue.instance.text("Ran away&lsafely!");
             battlemenu.SetActive(false);
             battleManager.Deactivate();
-		    ScreenEffects.flashLevel = 3;
+            ScreenEffects.flashLevel = 3;
             yield return new WaitForSeconds(1);
             WaitForSeconds wait = new WaitForSeconds(0.1f);
 
-            for(int i = 0; i < 3; i++){
+            for (int i = 0; i < 3; i++)
+            {
                 yield return wait;
                 ScreenEffects.flashLevel--;
             }
-       
-            switch(walkSurfBikeState){
-            case  MovementState.Surf: SoundManager.instance.FadeToSong(Music.Ocean); break;
-            case  MovementState.Bike: SoundManager.instance.FadeToSong(Music.Cycling); break;
-            default: FadeToCurrentAreaSong(); break;
+
+            switch (walkSurfBikeState)
+            {
+                case MovementState.Surf: SoundManager.instance.FadeToSong(Music.Ocean); break;
+                case MovementState.Bike: SoundManager.instance.FadeToSong(Music.Cycling); break;
+                default: FadeToCurrentAreaSong(); break;
             }
-            numberOfNoRandomBattleStepsLeft = 3;		
-	    }
+            numberOfNoRandomBattleStepsLeft = 3;
+        }
         Dialogue.instance.fastText = false;
         isMoving = false;
         inBattle = false;
         isDisabled = false;
     }
 
-    public void PlayCurrentAreaSong(){
-    SoundManager.instance.PlaySong(SoundManager.MapSongs[(int)currentArea]);
+    public void PlayCurrentAreaSong()
+    {
+        SoundManager.instance.PlaySong(SoundManager.MapSongs[(int)currentArea]);
     }
 
-    public void FadeToCurrentAreaSong(){
-    SoundManager.instance.FadeToSong(SoundManager.MapSongs[(int)currentArea]);
+    public void FadeToCurrentAreaSong()
+    {
+        SoundManager.instance.FadeToSong(SoundManager.MapSongs[(int)currentArea]);
     }
 
-    public void EncounterTrainer(){
-    //disable movement, and have trainer walk to player
-    //other stuff...
-    //start battle
+    public void EncounterTrainer()
+    {
+        //disable movement, and have trainer walk to player
+        //other stuff...
+        //start battle
     }
 
-    public void DoWarp(TileWarp tileWarp){
+    public void DoWarp(TileWarp tileWarp)
+    {
         holdingDirection = false;
         isWarping = true;
-        if(tileWarp.warpType == WarpType.WallWarp) walkedfromwarp = true;
+        if (tileWarp.warpType == WarpType.WallWarp) walkedfromwarp = true;
         if (walkedfromwarp && transform.position == targetPos)
         {
             walkedfromwarp = false;
@@ -721,32 +779,37 @@ void UpdateMovement(){
     Map.Route18
     });
 
-    void OnTriggerEnter2D(Collider2D col){
-        if(col.gameObject.tag == "MapCollider"){
+    void OnTriggerEnter2D(Collider2D col)
+    {
+        if (col.gameObject.tag == "MapCollider")
+        {
             if (GameData.instance.atTitleScreen) return;
             MapCollider mapCollider = col.gameObject.GetComponent<MapCollider>();
             currentArea = mapCollider.mapArea;
             int mapArea = (int)mapCollider.mapArea;
             MapManager.instance.currentMapGrassTilemap = mapCollider.grassTilemap.GetComponent<TilemapRenderer>();
             canUseBike = mapCollider.canUseBike; //set the bool for whether the player can use the bike
-            if(forceBikeMaps.Contains(currentArea)) walkSurfBikeState = MovementState.Bike; //if the map forces the player to use the bike, set the movement state to the bike
-            else if(!canUseBike && walkSurfBikeState == MovementState.Bike) walkSurfBikeState = MovementState.Walk;
-            if(currentArea == Map.Route17) forcePlayerBikeDownwards = true; //if the player is on Route 17 (Cycling Road), force the player to move downwards
+            if (forceBikeMaps.Contains(currentArea)) walkSurfBikeState = MovementState.Bike; //if the map forces the player to use the bike, set the movement state to the bike
+            else if (!canUseBike && walkSurfBikeState == MovementState.Bike) walkSurfBikeState = MovementState.Walk;
+            if (currentArea == Map.Route17) forcePlayerBikeDownwards = true; //if the player is on Route 17 (Cycling Road), force the player to move downwards
             else forcePlayerBikeDownwards = false;
-            if(GameData.instance.WaterEncounterMaps.Contains(currentArea)) areaHasWaterEncounters = true;
-                else areaHasWaterEncounters = false;
-            if(GameData.instance.MapGrassEncounterTableIndices[mapArea] != -1) currentAreaTable = PokemonData.encounters[GameData.instance.MapGrassEncounterTableIndices[mapArea]];
+            if (GameData.instance.WaterEncounterMaps.Contains(currentArea)) areaHasWaterEncounters = true;
+            else areaHasWaterEncounters = false;
+            if (GameData.instance.MapGrassEncounterTableIndices[mapArea] != -1) currentAreaTable = PokemonData.encounters[GameData.instance.MapGrassEncounterTableIndices[mapArea]];
             else currentAreaTable = null;
             if (currentArea == Map.House) return; //if the current area is a house, don't change the music
             Music song = SoundManager.MapSongs[mapArea];
-            if(SoundManager.instance.currentSong != (int)song && walkSurfBikeState == MovementState.Walk && !inBattle && !GameData.instance.isPlayingCredits){
-                if(SoundManager.instance.isFadingSong){
-                   SoundManager.instance.StopFadeSong();
+            if (SoundManager.instance.currentSong != (int)song && walkSurfBikeState == MovementState.Walk && !inBattle && !GameData.instance.isPlayingCredits)
+            {
+                if (SoundManager.instance.isFadingSong)
+                {
+                    SoundManager.instance.StopFadeSong();
                 }
                 SoundManager.instance.FadeToSong(song);
             }
         }
-        if(col.tag == "Warp"){
+        if (col.tag == "Warp")
+        {
             TileWarp tileWarp = col.GetComponent<TileWarp>();
             onWarpTile = true;
             currentWarpTile = tileWarp;
@@ -754,9 +817,11 @@ void UpdateMovement(){
     }
 
 
-    void OnTriggerExit2D(Collider2D col){
-        if(col.tag == "Warp"){
-        onWarpTile = false;   
+    void OnTriggerExit2D(Collider2D col)
+    {
+        if (col.tag == "Warp")
+        {
+            onWarpTile = false;
         }
     }
 

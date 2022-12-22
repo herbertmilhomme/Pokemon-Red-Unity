@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using PokemonUnity;
+using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -19,23 +21,25 @@ public class Pokedex : MonoBehaviour
     int seen{
         get
         {
-            int seennumber = 0;
-            foreach (PokedexEntry entry in GameData.instance.pokedexlist)
-            {
-                if (entry.seen) seennumber++;
-            }
-            return seennumber;
+            //int seennumber = 0;
+            //foreach (PokedexEntry entry in GameData.instance.pokedexlist)
+            //{
+            //    if (entry.seen) seennumber++;
+            //}
+            //return seennumber;
+            return GameData.instance.pokedexlist.Select(pkmn => pkmn.seen == true).Count();
         }
     }
     int caught{
         get
         {
-            int caughtnumber = 0;
-            foreach (PokedexEntry entry in GameData.instance.pokedexlist)
-            {
-                if (entry.caught) caughtnumber++;
-            }
-            return caughtnumber;
+            //int caughtnumber = 0;
+            //foreach (PokedexEntry entry in GameData.instance.pokedexlist)
+            //{
+            //    if (entry.caught) caughtnumber++;
+            //}
+            //return caughtnumber;
+            return GameData.instance.pokedexlist.Select(pkmn => pkmn.caught == true).Count();
         }
     }
 
@@ -52,7 +56,8 @@ public class Pokedex : MonoBehaviour
         }
     }
   
-    public void Init(){
+    public void Init()
+    {
         topSlotIndex = 1;
         selectedSlot = 0;
         seentext.text = seen.ToString();
@@ -61,11 +66,12 @@ public class Pokedex : MonoBehaviour
         UpdateScreen();
     }
 
-    void UpdateScreen(){
+    void UpdateScreen()
+    {
         for (int i = 0; i < 7; i++)
         {
             int slotNo = topSlotIndex + i;
-            entries[i].transform.GetChild(0).GetComponent<CustomText>().text = slotNo.ZeroFormat("00x") + "\n" + (!GameData.instance.pokedexlist[slotNo - 1].seen ? "   ----------" : "   " + ((PokemonUnity.Pokemons)slotNo).ToString());
+            entries[i].transform.GetChild(0).GetComponent<CustomText>().text = slotNo.ZeroFormat("00x") + "\n" + (!GameData.instance.pokedexlist[slotNo - 1].seen ? "   ----------" : "   " + ((Pokemons)slotNo).ToString());
             entries[i].transform.GetChild(1).gameObject.SetActive(GameData.instance.pokedexlist[slotNo - 1].caught);
         }
     }
@@ -74,18 +80,23 @@ public class Pokedex : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(!selectingMon) cursor.SetPosition(0,112 - 16 * selectedSlot);
-        if(!cursor.isActive) cursor.SetActive(true);
-        if(viewBio.displayingBio) cursor.SetActive(false);
+        if(!selectingMon) 
+            cursor.SetPosition(0,112 - 16 * selectedSlot);
+        if(!cursor.isActive) 
+            cursor.SetActive(true);
+        if(viewBio.displayingBio) 
+            cursor.SetActive(false);
 
         if(MainMenu.instance.currentmenu == MainMenu.instance.pokedexmenu)
         {
             if(InputManager.Pressed(Button.B) && !viewBio.displayingBio)
             {
                 SoundManager.instance.PlayABSound();
-                if(Player.instance.isDisabled) Player.instance.isDisabled = false;
+                if(Player.instance.isDisabled) 
+                    Player.instance.isDisabled = false;
                 Debug.Log(Player.instance.isDisabled);
-                if(selectingMon) selectingMon = false;
+                if(selectingMon) 
+                    selectingMon = false;
                 else{
                     InputManager.Enable(Button.Start);
                     
@@ -105,7 +116,7 @@ public class Pokedex : MonoBehaviour
                 }
                 else if(GameData.instance.pokedexlist[topSlotIndex + selectedSlot - 1].seen)
                 {
-                    StartCoroutine(viewBio.DisplayABio(topSlotIndex + selectedSlot));
+                    StartCoroutine(viewBio.DisplayABio((Pokemons)(topSlotIndex + selectedSlot)));
                 }
 
             }
@@ -148,7 +159,8 @@ public class Pokedex : MonoBehaviour
                 if (!selectingMon)
                 {
                     topSlotIndex += 10;
-                    if (topSlotIndex > GameData.instance.pokedexlist.Count - 6) topSlotIndex = GameData.instance.pokedexlist.Count - 6;
+                    if (topSlotIndex > GameData.instance.pokedexlist.Count - 6) 
+                        topSlotIndex = GameData.instance.pokedexlist.Count - 6;
                     UpdateScreen();
                 }
             }
@@ -157,7 +169,8 @@ public class Pokedex : MonoBehaviour
                 if (!selectingMon)
                 {
                     topSlotIndex -= 10;
-                    if (topSlotIndex < 1) topSlotIndex = 1;
+                    if (topSlotIndex < 1) 
+                        topSlotIndex = 1;
                     UpdateScreen();
                 }
             }

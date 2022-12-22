@@ -30,7 +30,7 @@ public class Move {
     }
 }
 
-public enum Status {
+public enum StatusT {
     Ok,
     Sleep,
     Burn,

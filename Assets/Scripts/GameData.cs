@@ -6,6 +6,7 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+using PokemonUnity.Monster;
 
 public class PokedexEntry
 {
@@ -112,8 +113,10 @@ public class GameData : Singleton<GameData> {
     public bool[] eventsArray;
 
 
-    public void AddPokemonToParty(PokemonUnity.Pokemons pokemon, int level){
-        party.Add(new Pokemon(pokemon, level, false));
+    public void AddPokemonToParty(PokemonUnity.Pokemons id, int level){
+        Pokemon monster = new Pokemon(id, (byte)level, false);
+        monster.Name = id.ToString();
+        party.Add(monster);
     }
 
 

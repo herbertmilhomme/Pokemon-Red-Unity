@@ -23,7 +23,7 @@ public class PokemonPC : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
     void Init()
     {
@@ -33,6 +33,6 @@ public class PokemonPC : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }

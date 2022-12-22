@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using PokemonUnity;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,7 +7,7 @@ using UnityEngine.UI;
 
 public class ViewBio : MonoBehaviour {
 	public GameObject menu;
-	public int pokemonID;
+	public Pokemons pokemonID;
     public bool displayingBio;
 	public Image pokemonSprite;
 	public CustomText descriptionText, nameText, categoryText, heightText, weightText, dexNoText;
@@ -14,15 +15,15 @@ public class ViewBio : MonoBehaviour {
 	PokemonUnity.Monster.Data.PokemonData entryData;
 
 
-	public IEnumerator DisplayABio(int whatBio){
+	public IEnumerator DisplayABio(Pokemons whatBio){
 		SoundManager.instance.SetMusicLow();
-        PokedexEntry entry = GameData.instance.pokedexlist[whatBio];
-		pokemonName = ((PokemonUnity.Pokemons)whatBio).ToString();
+        PokedexEntry entry = whatBio.GetPokedexEntry();
+		pokemonName = whatBio.ToString();
 
         Debug.Log("Display " + pokemonName +  "'s bio. This Pokemon " + (entry.seen && entry.caught ? "has been seen and caught." : entry.seen ? "has been seen." : "has not been seen or caught."));
 		
 		pokemonID = whatBio;
-		entryData = PokemonData.GetPokemonData((PokemonUnity.Pokemons)pokemonID);
+		entryData = PokemonData.GetPokemonData(pokemonID);
 
 		InitText();
 		menu.SetActive(true);
@@ -64,10 +65,10 @@ public class ViewBio : MonoBehaviour {
 		//heightText.text = entryData.heightFeet + " " + (entryData.heightInches < 10 ? "0" : "") + entryData.heightInches;
 		heightText.text = entryData.Height.ToString();
 		weightText.text = string.Format("{0,5:0.0}",entryData.Weight);
-		dexNoText.text = (pokemonID > 99 ? "" : pokemonID > 9 ? "0" : "00") + pokemonID.ToString();
+		dexNoText.text = ((int)pokemonID > 99 ? "" : (int)pokemonID > 9 ? "0" : "00") + pokemonID.ToString();
 		//descriptionText.text = entryData.descriptionText[0];
 		descriptionText.text = "Hi, pokemon";
-		pokemonSprite.sprite = GameData.instance.frontMonSprites[pokemonID - 1];
+		pokemonSprite.sprite = pokemonID.GetFrontSprite();
 	}
 
 
